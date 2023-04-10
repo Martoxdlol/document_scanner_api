@@ -1,5 +1,7 @@
 # Super simple physical document scanner api
 
+Code based on https://www.makeuseof.com/python-create-document-scanner/
+
 ## How to use it
 
 Make a post request to `/scan`
