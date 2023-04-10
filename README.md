@@ -21,3 +21,20 @@ data:image/png;base64,zMJeYn2J...8Vg=
 ## Cache images
 
 Cached images are stored at `/usr/app/data` in docker container
+
+## Javascript example
+
+```javascript
+async function scanImage(inputInBase64) {
+    const response = await (await fetch('/scan', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            data: inputInBase64
+        })
+    })).text()
+    return response
+}
+```
