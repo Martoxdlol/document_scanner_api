@@ -1,0 +1,10 @@
+version: '3.3'
+services:
+  document_scanner_api:
+    build: .
+    restart: always
+    container_name: document_scanner_api
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./data/:/usr/app/data"
