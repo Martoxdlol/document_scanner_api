@@ -1,11 +1,45 @@
-const express = require('express')
+import express from "express";
+import path from 'path'
+import fs from 'fs/promises'
+import { exec } from "child_process";
+import crypto from 'crypto'
+
 const app = express()
-app.listen(3000)
 
-app.use(express.json());
+app.use(express.json({ limit: '100mb' }));
 
-app.post('/scan_document', (req, res) => {
-    console.log(req.body)
-    res.end(req.body)
-    //const buf = Buffer.from(req.body, 'base64'); // Ta-da
+app.post('/scan', async (req, res) => {
+    try {
+        const [metadata, data] = req.body.data.split(';base64,')
+        const buffer = Buffer.from(data, 'base64')
+
+        const sha256Hasher = crypto.createHmac("sha256", '1234');
+        const hash = sha256Hasher.update(req.body.data).digest("hex");
+
+        const filename = 'data/' + hash + '.' + metadata.split('/')[1]
+
+        try {
+            await fs.access(filename);
+            const scanned = await fs.readFile(filename + '.scanned.png', { encoding: 'base64' })
+            console.log(`image ${hash} found`)
+            res.send('data:image/png;base64,' + scanned)
+            return
+        } catch {
+            console.log('New file with hash ' + hash)
+        }
+
+        await fs.writeFile(filename, buffer)
+        exec('python3 main.py ' + filename, async (err, stdout) => {
+            const scanned = await fs.readFile(filename + '.scanned.png', { encoding: 'base64' })
+            res.send('data:image/png;base64,' + scanned)
+        })
+    } catch (error) {
+        console.error(error)
+        res.send(req.body?.data)
+    }
 })
+
+// Testing
+app.use('/public', express.static(path.resolve('./public')))
+
+app.listen(3000)

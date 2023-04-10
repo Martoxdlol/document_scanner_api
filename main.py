@@ -4,7 +4,9 @@ from skimage.filters import threshold_local
 from transform import perspective_transform
 import sys
 
-print(sys.argv[1])
+input_filename = sys.argv[1]
+
+print(input_filename)
 
 # Loading and displaying the original image
 original_img = cv2.imread(sys.argv[1])
@@ -49,7 +51,7 @@ warped_image = cv2.cvtColor(warped_image, cv2.COLOR_BGR2GRAY)
 
 T = threshold_local(warped_image, 11, offset=10, method="gaussian")
 warped = (warped_image > T).astype("uint8") * 255
-cv2.imwrite('./'+'scan'+'.png',warped)
+cv2.imwrite(input_filename+'.scanned.png',warped)
 
 # cv2.imshow("Final Scanned image", imutils.resize(warped, height=650))
 # cv2.waitKey(0)
