@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ESNEXT",  
+        "module": "ESNext",
+        "moduleResolution": "nodenext",
+        "lib": ["ES2020"],   
+        "strict": true,
+        "allowJs": false,
+        "esModuleInterop": true,
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "allowSyntheticDefaultImports": true  
+    },
+    "include": [
+        "src"
+    ]
+}
