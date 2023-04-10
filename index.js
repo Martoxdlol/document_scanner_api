@@ -41,5 +41,8 @@ app.post('/scan', async (req, res) => {
 
 // Testing
 app.use('/public', express.static(path.resolve('./public')))
+app.use('/scan/test', express.static(path.resolve('./public')))
 
-app.listen(3000)
+app.listen(3000, () => {
+    console.log("App listening ok")
+})
