@@ -1,7 +1,4 @@
 import cv2
-import imutils
-from skimage.filters import threshold_local
-from transform import perspective_transform
 import sys
 import numpy as np
 
