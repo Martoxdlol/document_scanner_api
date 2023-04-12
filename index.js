@@ -1,10 +1,14 @@
 import express from "express";
 import path from 'path'
 import fs from 'fs/promises'
-import { exec } from "child_process";
+import { exec as exec_original } from "child_process";
 import crypto from 'crypto'
 import sharp from 'sharp'
 import cors from 'cors'
+
+import util from 'util'
+
+const exec = util.promisify(exec_original);
 
 const app = express()
 
@@ -14,16 +18,11 @@ app.use(cors())
 
 app.post('/scan', async (req, res) => {
     try {
-        const [metadata, data] = req.body.data.split(';base64,')
+        const [_, data] = req.body.data.split(';base64,')
         let buffer = Buffer.from(data, 'base64')
 
         let sharpInstance = sharp(buffer)
         sharpInstance = sharpInstance.rotate()
-        sharpInstance = sharpInstance.resize({
-            withoutEnlargement: true,
-            fit: 'contain',
-            width: 1600,
-        })
         buffer = await sharpInstance.toFormat("jpeg").toBuffer()
 
         const sha256Hasher = crypto.createHmac("sha256", '1234');
@@ -43,14 +42,16 @@ app.post('/scan', async (req, res) => {
 
         await fs.writeFile(filename, buffer)
 
-        exec('python3 main.py ' + filename, async (err, stdout) => {
-            console.log("Python script output: ", stdout)
-            console.log("Python script error: ", err)
-            const scanned = await fs.readFile(filename + '.scanned.png', { encoding: 'base64' })
-            res.send('data:image/png;base64,' + scanned)
-        })
+        await delay(1000)
 
-        
+        const { stdout, stderr } = await exec('python3 main.py ' + filename);
+        console.log("Python script output: ", stdout)
+        console.log("Python script error: ", stderr)
+
+        if(stderr) throw stderr
+
+        const scanned = await fs.readFile(filename + '.scanned.png', { encoding: 'base64' })
+        res.send('data:image/png;base64,' + scanned)
     } catch (error) {
         console.error(error)
         res.send(req.body?.data)
@@ -64,3 +65,5 @@ app.use('/scan/test', express.static(path.resolve('./public')))
 app.listen(3000, () => {
     console.log("App listening ok")
 })
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
