@@ -29,6 +29,9 @@ app.post('/scan', async (req, res) => {
         const hash = sha256Hasher.update(buffer).digest("hex");
 
         const filename = 'data/' + hash + '.jpeg'
+        const scannedFilename = filename + '.scanned.png'
+
+
 
         try {
             await fs.access(filename);
@@ -45,8 +48,13 @@ app.post('/scan', async (req, res) => {
         await delay(1000)
 
         const { stdout, stderr } = await exec('python3 main.py ' + filename);
-        console.log("Python script output: ", stdout)
-        console.log("Python script error: ", stderr)
+        if(stdout.trim()) {
+            console.log("Python script output: ", stdout)
+        }
+
+        if(stderr.trim()) {
+            console.log("Python script error: ", stderr)
+        }
 
         if(stderr) throw stderr
 
