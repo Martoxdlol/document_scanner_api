@@ -42,6 +42,7 @@ app.post('/scan', async (req, res) => {
 
         exec('python3 main.py ' + filename, async (err, stdout) => {
             console.log("Python script output: ", stdout)
+            console.log("Python script error: ", err)
             const scanned = await fs.readFile(filename + '.scanned.png', { encoding: 'base64' })
             res.send('data:image/png;base64,' + scanned)
         })
