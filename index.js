@@ -4,10 +4,13 @@ import fs from 'fs/promises'
 import { exec } from "child_process";
 import crypto from 'crypto'
 import sharp from 'sharp'
+import cors from 'cors'
 
 const app = express()
 
 app.use(express.json({ limit: '100mb' }));
+
+app.use(cors())
 
 app.post('/scan', async (req, res) => {
     try {
