@@ -25,6 +25,8 @@ app.post('/scan', async (req, res) => {
         sharpInstance = sharpInstance.rotate()
         buffer = await sharpInstance.toFormat("jpeg").toBuffer()
 
+        const meta = await sharpInstance.metadata()
+
         const sha256Hasher = crypto.createHmac("sha256", '1234');
         const hash = sha256Hasher.update(buffer).digest("hex");
 
@@ -48,17 +50,29 @@ app.post('/scan', async (req, res) => {
         await delay(1000)
 
         const { stdout, stderr } = await exec('python3 main.py ' + filename);
-        if(stdout.trim()) {
+        if (stdout.trim()) {
             console.log("Python script output: ", stdout)
         }
 
-        if(stderr.trim()) {
+        if (stderr.trim()) {
             console.log("Python script error: ", stderr)
         }
 
-        if(stderr) throw stderr
+        if (stderr) throw stderr
 
         const scanned = await fs.readFile(filename + '.scanned.png', { encoding: 'base64' })
+
+        const scannedImage = sharp(Buffer.from(scanned, 'base64'))
+        const scannedMeta = await scannedImage.metadata()
+        if (scannedMeta.width < meta.width * 0.6 || scannedMeta.height < meta.height * 0.6) {
+            console.log("WARNING: image scanned is too small, probably a bad scan. HASH: " + hash)
+
+            await fs.writeFile(scannedFilename, buffer)
+            
+            res.send('data:image/png;base64,' + scanned)
+            return
+        }
+
         res.send('data:image/png;base64,' + scanned)
     } catch (error) {
         console.error(error)
