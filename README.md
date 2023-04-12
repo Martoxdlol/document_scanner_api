@@ -1,6 +1,6 @@
 # Super simple physical document scanner api
 
-Code based on https://www.makeuseof.com/python-create-document-scanner/
+Code based on https://github.com/spmallick/learnopencv/tree/master/Automatic-Document-Scanner
 
 ## How to use it
 
