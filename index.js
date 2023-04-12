@@ -60,7 +60,7 @@ app.post('/scan', async (req, res) => {
 
         if (stderr) throw stderr
 
-        const scanned = await fs.readFile(filename + '.scanned.png', { encoding: 'base64' })
+        const scanned = await fs.readFile(scannedFilename, { encoding: 'base64' })
 
         const scannedImage = sharp(Buffer.from(scanned, 'base64'))
         const scannedMeta = await scannedImage.metadata()
@@ -68,8 +68,9 @@ app.post('/scan', async (req, res) => {
             console.log("WARNING: image scanned is too small, probably a bad scan. HASH: " + hash)
 
             await fs.writeFile(scannedFilename, buffer)
-            
-            res.send('data:image/png;base64,' + scanned)
+
+            const img = await fs.readFile(scannedFilename, { encoding: 'base64' })
+            res.send('data:image/png;base64,' + img)
             return
         }
 
