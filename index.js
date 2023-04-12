@@ -34,7 +34,7 @@ app.post('/scan', async (req, res) => {
 
 
         try {
-            await fs.access(filename);
+            await fs.access(scannedFilename);
             const scanned = await fs.readFile(scannedFilename, { encoding: 'base64' })
             console.log(`image ${hash} found`)
             res.send('data:image/png;base64,' + scanned)
